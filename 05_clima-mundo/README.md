@@ -1,4 +1,4 @@
-##Aplicacione que busca clima por nombre de ciudad
+##Aplicacion que busca clima por nombre de ciudad
 ## modo de uso
 
 ```
