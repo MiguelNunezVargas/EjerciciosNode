@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-
 app.use(bodyParser.json()); // parse application/json
 
 /**traemos las rutas de usuario.js */
-app.use(require('./routes/usuario'));
+app.use(require('./routes/index'));
 
 
 /**Conexion de moongose */
