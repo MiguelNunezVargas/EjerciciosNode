@@ -12,16 +12,16 @@ let Schema = mongoose.Schema;
 let usuarioSchema = new Schema({
     nombre: {
         type: String,
-        required: [true, 'El Nombre es necesario'],
+        required: [true, 'El Nombre es necesario']
     },
     email: {
         type: String,
         unique: true,
-        required: [true, 'El Correo es necesario'],
+        required: [true, 'El Correo es necesario']
     },
     password: {
         type: String,
-        required: [true, 'La contraseña es Obligatoria'],
+        required: [true, 'La contraseña es Obligatoria']
     },
     img: {
         type: String,

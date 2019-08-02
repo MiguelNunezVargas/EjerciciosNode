@@ -90,7 +90,7 @@ app.put('/usuario/:id', [verificaToken, verificaAdmin_Role] ,function(req, res) 
             usuario: usuarioDB
         });
 
-    })
+    });
 });
 
 app.delete('/usuario/:id', [verificaToken, verificaAdmin_Role] ,function(req, res) {
