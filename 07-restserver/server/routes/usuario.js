@@ -112,7 +112,7 @@ app.delete('/usuario/:id', [verificaToken, verificaAdmin_Role] ,function(req, re
             usuario: usuarioBorrado
         });
 
-    })
+    });
 
     /**para Removerlo Físicamente */
     /*

@@ -14,10 +14,10 @@ const Categoria = require('../models/categoria');
     desde = Number(desde);
     limite = Number(limite);
 
-    Producto.find({}, 'nombre precioUni')
+    Producto.find({ disponible: true }, 'nombre precioUni')
         .sort('nombre')
-        .populate('categoria', 'descripcion')
         .populate('usuario', 'nombre email')
+        .populate('categoria', 'descripcion')
         .skip(desde)
         .limit(limite)
         .exec((err, productos) => {
@@ -33,8 +33,8 @@ const Categoria = require('../models/categoria');
                     ok: true,
                     productos,
                     cuantos: conteo
-                })
-            })
+                });
+            });
         }
     );
  });
@@ -43,16 +43,16 @@ const Categoria = require('../models/categoria');
 /*============================
  * Obtener un producto por id
  =============================*/
- app.get('/productos/:id', (req, res) => {
+ app.get('/productos/:id',verificaToken, (req, res) => {
     //populate: usuario categoria
     let idProducto = req.params.id;
 
     Producto.find({_id: idProducto}, 'nombre precioUni')
-        .populate('categoria', 'descripcion')
         .populate('usuario', 'nombre email')
+        .populate('categoria', 'descripcion')
         .exec((err, productos) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     err
                 });
@@ -74,6 +74,33 @@ const Categoria = require('../models/categoria');
     
  });
 
+/*============================
+ * Buscar Productos
+ =============================*/
+app.get('/productos/buscar/:termino', verificaToken, (req, res) =>{
+
+    let termino = req.params.termino;
+    let regex = new RegExp(termino, 'i');
+
+    Producto.find({ nombre: regex })
+        .populate('categoria', 'descripcion')
+        .exec( (err, productos) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err
+                });
+            }
+
+            res.json({
+                ok: true,
+                productos
+            })
+
+        }
+    );
+});
 
 /*============================
  * Crear un nuevo producto
@@ -124,7 +151,7 @@ const Categoria = require('../models/categoria');
 /*============================
  * Actualizar un  producto
  =============================*/
- app.put('/productos/:id', (req, res) => {
+ app.put('/productos/:id',verificaToken, (req, res) => {
     //grabar el usuario
     //grabar una categoria
     let id = req.params.id;
@@ -176,10 +203,44 @@ const Categoria = require('../models/categoria');
 /*============================
  * Borrar un producto
  =============================*/
- app.delete('/productos/:id', (req, res) => {
-    //grabar el usuario
-    //grabar una categoria
-    //borrar logicamente (disponible)
+ app.delete('/productos/:id',verificaToken, (req, res) => {
+    /* id que llega desde los parametros */
+    let id = req.params.id;
+    
+    /**Para Removerlo lógicamente */
+    let body = {
+        disponible: false,
+        usuario: req.usuario._id
+        //categoria: req.body.categoria
+    }
+
+    //Producto.findById(id, (err, productoDB) => {});
+
+    Producto.findByIdAndUpdate(id, body, { new: true }, (err, productoBorrado) => {
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        if (!productoBorrado) {
+            return res.status(400).json({
+                ok: false,
+                err: {
+                    message: 'El ID no existe'
+                }
+            });
+        }
+
+        res.json({
+            ok: true,
+            producto: productoBorrado,
+            mensaje: 'Producto Borrado'
+        });
+
+    });
+
  });
 
 
