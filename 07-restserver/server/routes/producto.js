@@ -106,13 +106,13 @@ const Categoria = require('../models/categoria');
     
         producto.save((err, productoDB) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     err
                 });
             }
     
-            res.json({
+            res.status(201).json({
                 ok: true,
                 producto: productoDB
             })
@@ -127,6 +127,49 @@ const Categoria = require('../models/categoria');
  app.put('/productos/:id', (req, res) => {
     //grabar el usuario
     //grabar una categoria
+    let id = req.params.id;
+    let body = req.body;
+
+    Producto.findById(id, (err, productoDB) =>{
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                err
+            });
+        }
+
+        if (!productoDB) {
+            return res.status(400).json({
+                ok: false,
+                err: {
+                    message: 'El ID no existe'
+                }
+            });
+        }
+
+        productoDB.nombre = body.nombre;
+        productoDB.precioUni = body.precioUni;
+        productoDB.categoria = body.categoria;
+        productoDB.disponible = body.disponible;
+        productoDB.descripcion = body.descripcion;
+
+        productoDB.save((err, productoGuardado) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err
+                });
+            }
+    
+            res.status(201).json({
+                ok: true,
+                producto: productoGuardado
+            })
+        });
+
+    });
+
+
  });
 
 
