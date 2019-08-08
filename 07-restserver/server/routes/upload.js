@@ -84,6 +84,7 @@ app.put('/upload/:tipo/:id', (req, res) => {
 function imagenUsuario(id, res, nombreArchivo){
     Usuario.findById(id, (err, usuarioDB) =>{
         if (err) {
+            borraArchivo(usuarioDB.img, 'usuarios');
             return res.status(500).json({
                 ok: false,
                 err
@@ -99,8 +100,7 @@ function imagenUsuario(id, res, nombreArchivo){
             });
         }
 
-
-
+        borraArchivo(usuarioDB.img, 'usuarios');
 
         /** El usuario existe, actualizamos su img */
         usuarioDB.img = nombreArchivo;
@@ -123,8 +123,13 @@ function imagenUsuario(id, res, nombreArchivo){
     });
 }
 
-function imagenProducto(id){
-    
+function imagenProducto(id){}
+
+function borraArchivo(nombreImagen, tipo){
+    let pathImagen = path.resolve(__dirname, `../../uploads/${ tipo }/${ nombreImagen }`);
+    if( fs.existsSync(pathImagen) ){
+        fs.unlinkSync(pathImagen);
+    }
 }
 
 module.exports = app;
