@@ -73,14 +73,17 @@ app.put('/upload/:tipo/:id', (req, res) => {
         }
         
         //la img se cargó
-        imagenUsuario(id, res, nombreArchivo);
-
-
-        
+        if( tipo === "usuarios"){
+            imagenUsuario(id, res, nombreArchivo);
+        }else{
+            imagenProducto(id, res, nombreArchivo);
+        }
+           
     });
 
 });
 
+/**Usuarios */
 function imagenUsuario(id, res, nombreArchivo){
     Usuario.findById(id, (err, usuarioDB) =>{
         if (err) {
@@ -92,6 +95,7 @@ function imagenUsuario(id, res, nombreArchivo){
         };
 
         if(!usuarioDB){
+            borraArchivo(nombreArchivo, 'usuarios');
             return res.status(400).json({
                 ok: false,
                 err:{
@@ -123,7 +127,50 @@ function imagenUsuario(id, res, nombreArchivo){
     });
 }
 
-function imagenProducto(id){}
+/**Productos */
+function imagenProducto(id, res, nombreArchivo){
+    Producto.findById(id, (err, productoDB) =>{
+        if (err) {
+            borraArchivo(productoDB.img, 'productos');
+            return res.status(500).json({
+                ok: false,
+                err
+            });
+        };
+
+        if(!productoDB){
+            borraArchivo(nombreArchivo, 'usuarios');
+            return res.status(400).json({
+                ok: false,
+                err:{
+                    message: 'El producto no existe'
+                }
+            });
+        }
+
+        borraArchivo(productoDB.img, 'productos');
+
+        /** El producto existe, actualizamos su img */
+        productoDB.img = nombreArchivo;
+        productoDB.save( (err, productoGuardado) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    err
+                });
+            };
+
+            res.json({
+                ok: true,
+                producto: productoGuardado,
+                img: nombreArchivo
+            });
+        });
+
+
+    });
+
+}
 
 function borraArchivo(nombreImagen, tipo){
     let pathImagen = path.resolve(__dirname, `../../uploads/${ tipo }/${ nombreImagen }`);
